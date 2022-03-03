@@ -8,9 +8,13 @@ const calculator = {
     //Create a variable to store the display value
     displayValue : 00000000,
     //Create setter so that the display is updated when a new displayValue is set
-    set displayValue(value){
+    set DisplayValue(value){
         this.display.innerText = value;
+        this.displayValue = value;
     },
+
+    //Create a bool to record if the last button pressed was a number or not
+    numberBtnPressedLast : false,
 
     //Create a function that receives two numbers (or string numbers) 
     //and returns their sum
@@ -43,7 +47,22 @@ const calculator = {
             case '/' : return this.divide(a,b);
             default : return 'ERROR';
         }
-    }
+    },
+
+    //Create callback function that updates display with the pressed number.
+    //Called when a number button is pressed.
+    numberPress(value){
+        //If the last button pressed was a number button, then append the new number to the
+        //already existing number
+        if (calculator.numberBtnPressedLast){
+        calculator.DisplayValue = calculator.displayValue + value;
+        }
+        else{ //If the last button pressed is not a number button, then start a new number
+            calculator.DisplayValue = value;
+        }
+        //Record that the last button pressed was a number button
+        calculator.numberBtnPressedLast = true;
+    },
 }
 
 //--------------------------------------
@@ -52,14 +71,11 @@ const calculator = {
 
 //Create node list of all number buttons and iterate through them and add event listeners
 const numberBtns = document.querySelectorAll('.numberBtn');
-console.log(numberBtns);
-for (let button of numberBtns){
-    button.addEventListener('click', numberPress);
-}
+numberBtns.forEach(button => button.addEventListener('click', numberPress));
 
 
 //Create callback function that updates display with the pressed number.
 //Called when a number button is pressed.
 function numberPress(){
-    calculator.displayValue = this.innerText;
+    calculator.numberPress(this.innerText);
 }

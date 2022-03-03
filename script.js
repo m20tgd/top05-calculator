@@ -13,7 +13,7 @@ const calculator = {
     operandA : '0',
     operandB : '0',
     //Create a variable to store the selected operator and set to null
-    selectedOperator : '+',
+    selectedOperator : null,
 
     //Create a function that receives two numbers (or string numbers) 
     //and returns their sum
@@ -51,6 +51,11 @@ const calculator = {
     //Create function that updates display with the pressed number.
     //Called when a number button is pressed.
     numberPress(value){
+        //Reset the calculator if the last button pressed was equals as a new calculation
+        //is being started
+        if (this.lastBtnType === 'equals'){
+            this.clear();
+        }
         //If the last button pressed was a number button, then append the new number to the
         //already existing number
         if (this.lastBtnType === 'number'){
@@ -68,11 +73,16 @@ const calculator = {
     //Create a function that is called when an operator button is pressed. It is passed an
     //operator value.
     operatorPress(value){
-        //Check to see if the last button pressed was an operator, if it was, then the calculation
-        //can be skipped and just the operator type will be changed.
-        if (this.lastBtnType != 'operator'){
+        //Check to see if the last button pressed was anything other than a number, 
+        //if it was, then the calculation can be skipped and just the operator type will be changed.
+        if (this.lastBtnType === 'number'){
+                //If this is the first operator button pressed and selectedOperator is null, 
+                //set it to '+' 
+                if (this.selectedOperator === null){
+                    this.selectedOperator = '+';
+                }
                 //Set operandB to the display value, operate on it using the previously 
-                //selected operator ('+' by default) and operandA (0 by default) and assign 
+                //selected operator and assign 
                 //the result to operandA and display this in the display.
                 this.operandB = this.display.innerText;
                 this.operandA =this.operate(this.operandA, this.operandB, this.selectedOperator);
@@ -85,21 +95,35 @@ const calculator = {
     },
 
     equalsPress(){
+        //Return with no action if selectedOperator is null
+        if (this.selectedOperator === null) return;
+
         if (this.lastBtnType != 'equals'){
             //Set operandB to the display value, operate on it using the previously 
-            //selected operator ('+' by default) and operandA (0 by default) and assign 
+            //selected operator  and assign 
             //the result to operandA and display this in the display.
             this.operandB = this.display.innerText;
             this.operandA =this.operate(this.operandA, this.operandB, this.selectedOperator);
             this.display.innerText = this.operandA;
         }
+        //If the equals button was pressed last time, just repeat the calculation with the same 
+        //operator and operandB.
         else{
-            console.log(this.operandB);
             this.operandA =this.operate(this.operandA, this.operandB, this.selectedOperator);
             this.display.innerText = this.operandA;
         }
         this.lastBtnType = 'equals'
-    }
+    },
+
+    //Create a function to reset all of the variables
+    clear(){
+        this.display.innerText = '0';
+        this.currentNumber = '0';
+        this.lastBtnType = null;
+        this.operandA = '0';
+        this.operandB = '0';
+        this.selectedOperator = null;
+    },
 }
 
 //--------------------------------------
@@ -124,10 +148,16 @@ function operatorPress(){
 
 //Create a variable for the equals button
 const equalsBtn = document.querySelector('#equalsBtn');
-console.log(equalsBtn);
 equalsBtn.addEventListener('click', equalsPress);
 //Create callback function that passes the operator value to the calculator
 function equalsPress(){
     calculator.equalsPress();
 }
 
+//Create a variable for the clear button
+const clearBtn = document.querySelector('#clearBtn');
+clearBtn.addEventListener('click', clearPress);
+//Create a function that calls the clear function of the calculator
+function clearPress(){
+    calculator.clear();
+}
